@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.github.rekrutacja.Exceptions.FileSaveException;
 import org.github.rekrutacja.Model.Post;
-import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

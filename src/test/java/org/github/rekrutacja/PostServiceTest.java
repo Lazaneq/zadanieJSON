@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.github.rekrutacja.Model.Post;
 import org.github.rekrutacja.Service.PostService;
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
@@ -33,7 +32,7 @@ public class PostServiceTest {
   }
 
   @Test
-  public void shouldGetAllPosts() throws JSONException {
+  public void shouldGetAllPosts(){
     Post[] posts = { new Post(1, 1, "Title", "Body")};
     when(restTemplate.getForObject(anyString(), eq(Post[].class))).thenReturn(posts);
 
@@ -45,7 +44,7 @@ public class PostServiceTest {
   }
 
   @Test
-  public void shouldSavePostInJsonFormat() throws JSONException, IOException {
+  public void shouldSavePostInJsonFormat() throws IOException {
     Post[] post = { new Post(1, 1, "Title", "Body")};
 
     postService.writeDataToFile(post);
