@@ -16,6 +16,7 @@ import org.github.rekrutacja.Model.Post;
 import org.github.rekrutacja.Service.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.client.RestTemplate;
 
 public class PostServiceTest {
@@ -23,12 +24,14 @@ public class PostServiceTest {
   private PostService postService;
   private RestTemplate restTemplate;
   private ObjectMapper objectMapper;
+  private FileSaveConfiguration fileSaveConfiguration;
 
   @BeforeEach
   void setUp() {
     restTemplate = mock(RestTemplate.class);
+    fileSaveConfiguration = mock(FileSaveConfiguration.class);
     objectMapper = new ObjectMapper();
-    postService = new PostService(restTemplate, objectMapper);
+    postService = new PostService(restTemplate, objectMapper, fileSaveConfiguration);
   }
 
   @Test
@@ -44,12 +47,16 @@ public class PostServiceTest {
   }
 
   @Test
-  public void shouldSavePostInJsonFormat() throws IOException {
+  public void shouldSavePostInExactFormat(@TempDir Path tempDir) throws IOException {
     Post[] post = { new Post(1, 1, "Title", "Body")};
 
-    postService.writeDataToFile(post);
+    when(fileSaveConfiguration.getOutputFolder()).thenReturn(tempDir.toString());
+    when(fileSaveConfiguration.getExtension()).thenReturn(".json");
 
-    assertTrue(Files.exists(Path.of("postsData/" + post[0].getPostId() + ".json")));
+    postService.writeDataToFiles(post);
+
+    assertTrue(Files.exists(Path.of(fileSaveConfiguration.getOutputFolder() + "/"
+        + post[0].getPostId() + fileSaveConfiguration.getExtension())));
   }
 
 }

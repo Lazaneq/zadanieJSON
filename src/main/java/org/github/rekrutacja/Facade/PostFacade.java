@@ -16,10 +16,9 @@ public class PostFacade {
     return postService.getAllPosts();
   }
 
-  public void getAllPostsAndWriteToFile() throws FileSaveException {
+  public void getAllPostsAndWriteToFiles() throws FileSaveException {
       Post[] posts = postService.getAllPosts();
-      postService.writeDataToFile(posts);
-
+      postService.writeDataToFiles(posts);
   }
 
 }
