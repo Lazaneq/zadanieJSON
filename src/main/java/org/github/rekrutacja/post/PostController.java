@@ -1,8 +1,7 @@
-package org.github.rekrutacja.Controller;
+package org.github.rekrutacja.post;
 
-import org.github.rekrutacja.Exceptions.FileSaveException;
-import org.github.rekrutacja.Facade.PostFacade;
-import org.github.rekrutacja.Model.Post;
+import org.github.rekrutacja.post.Exceptions.FileSaveException;
+import org.github.rekrutacja.post.impl.PostFacadeImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
@@ -12,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/posts")
-public class PostsController {
+public class PostController {
 
   @Autowired
-  private PostFacade postFacade;
+  private PostFacadeImpl postFacadeImpl;
 
   @Description("Endpoint zwracający listę wszystkich postów")
   @GetMapping
   public ResponseEntity<Post[]> getPosts() {
-    Post[] posts = postFacade.getAllPosts();
+    Post[] posts = postFacadeImpl.getAllPosts();
 
     return ResponseEntity.ok(posts);
   }
@@ -28,6 +27,6 @@ public class PostsController {
   @Description("Endpoint /posts/write zapisujący posty do dedykowanych plików po id_posta")
   @GetMapping("/write")
   public void getPostsAndWriteToFiles() throws FileSaveException {
-    postFacade.getAllPostsAndWriteToFiles();
+    postFacadeImpl.getAllPostsAndWriteToFiles();
   }
 }

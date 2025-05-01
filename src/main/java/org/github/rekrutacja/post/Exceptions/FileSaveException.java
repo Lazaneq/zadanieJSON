@@ -1,4 +1,4 @@
-package org.github.rekrutacja.Exceptions;
+package org.github.rekrutacja.post.Exceptions;
 
 import java.io.IOException;
 

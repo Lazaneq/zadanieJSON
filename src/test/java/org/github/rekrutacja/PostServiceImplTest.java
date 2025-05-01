@@ -12,16 +12,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.github.rekrutacja.Model.Post;
-import org.github.rekrutacja.Service.PostService;
+import org.github.rekrutacja.post.FileSaveConfiguration;
+import org.github.rekrutacja.post.Post;
+import org.github.rekrutacja.post.impl.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.client.RestTemplate;
 
-public class PostServiceTest {
+public class PostServiceImplTest {
 
-  private PostService postService;
+  private PostServiceImpl postServiceImpl;
   private RestTemplate restTemplate;
   private ObjectMapper objectMapper;
   private FileSaveConfiguration fileSaveConfiguration;
@@ -31,7 +32,7 @@ public class PostServiceTest {
     restTemplate = mock(RestTemplate.class);
     fileSaveConfiguration = mock(FileSaveConfiguration.class);
     objectMapper = new ObjectMapper();
-    postService = new PostService(restTemplate, objectMapper, fileSaveConfiguration);
+    postServiceImpl = new PostServiceImpl(restTemplate, objectMapper, fileSaveConfiguration);
   }
 
   @Test
@@ -39,7 +40,7 @@ public class PostServiceTest {
     Post[] posts = { new Post(1, 1, "Title", "Body")};
     when(restTemplate.getForObject(anyString(), eq(Post[].class))).thenReturn(posts);
 
-    Post[] result = postService.getAllPosts();
+    Post[] result = postServiceImpl.getAllPosts();
 
     assertNotNull(result);
     assertEquals(1, result.length);
@@ -53,10 +54,11 @@ public class PostServiceTest {
     when(fileSaveConfiguration.getOutputFolder()).thenReturn(tempDir.toString());
     when(fileSaveConfiguration.getExtension()).thenReturn(".json");
 
-    postService.writeDataToFiles(post);
+    postServiceImpl.writeDataToFiles(post);
 
-    assertTrue(Files.exists(Path.of(fileSaveConfiguration.getOutputFolder() + "/"
-        + post[0].getPostId() + fileSaveConfiguration.getExtension())));
+    Path expectedFile = tempDir.resolve(post[0].getPostId() + ".json");
+
+    assertTrue(Files.exists(expectedFile));
   }
 
 }

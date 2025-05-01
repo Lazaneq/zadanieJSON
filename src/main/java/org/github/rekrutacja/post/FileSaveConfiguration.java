@@ -1,4 +1,4 @@
-package org.github.rekrutacja;
+package org.github.rekrutacja.post;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

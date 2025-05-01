@@ -1,17 +1,18 @@
-package org.github.rekrutacja.Service;
+package org.github.rekrutacja.post.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.github.rekrutacja.Exceptions.FileSaveException;
-import org.github.rekrutacja.FileSaveConfiguration;
-import org.github.rekrutacja.Model.Post;
+import org.github.rekrutacja.post.Exceptions.FileSaveException;
+import org.github.rekrutacja.post.FileSaveConfiguration;
+import org.github.rekrutacja.post.Post;
+import org.github.rekrutacja.post.PostService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-public class PostService {
+public class PostServiceImpl implements PostService {
 
   private final RestTemplate restTemplate;
   private final ObjectMapper objectMapper;
@@ -19,17 +20,19 @@ public class PostService {
 
   private final static String posts_url = "https://jsonplaceholder.typicode.com/posts";
 
-  public PostService(final RestTemplate restTemplate, final ObjectMapper objectMapper,
+  public PostServiceImpl(final RestTemplate restTemplate, final ObjectMapper objectMapper,
       final FileSaveConfiguration fileSaveConfiguration) {
     this.restTemplate = restTemplate;
     this.objectMapper = objectMapper;
     this.fileSaveConfiguration = fileSaveConfiguration;
   }
 
+  @Override
   public Post[] getAllPosts(){
     return restTemplate.getForObject(posts_url, Post[].class);
   }
 
+  @Override
   public void writeDataToFiles(final Post[] posts) throws FileSaveException {
     Path directory = Path.of(fileSaveConfiguration.getOutputFolder());
     try{
@@ -43,5 +46,6 @@ public class PostService {
       throw new FileSaveException(e);
       }
     }
+
   }
 

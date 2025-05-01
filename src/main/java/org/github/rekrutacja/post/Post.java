@@ -1,4 +1,4 @@
-package org.github.rekrutacja.Model;
+package org.github.rekrutacja.post;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
