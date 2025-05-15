@@ -8,44 +8,57 @@ import org.github.rekrutacja.post.Exceptions.FileSaveException;
 import org.github.rekrutacja.post.FileSaveConfiguration;
 import org.github.rekrutacja.post.Post;
 import org.github.rekrutacja.post.PostService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Service
 public class PostServiceImpl implements PostService {
 
-  private final RestTemplate restTemplate;
+  private static final Logger logger = LoggerFactory.getLogger(PostServiceImpl.class);
+  private final WebClient webClient;
   private final ObjectMapper objectMapper;
   private final FileSaveConfiguration fileSaveConfiguration;
-
-  private final static String posts_url = "https://jsonplaceholder.typicode.com/posts";
-
-  public PostServiceImpl(final RestTemplate restTemplate, final ObjectMapper objectMapper,
+  
+  public PostServiceImpl(final WebClient.Builder webClientBuilder, final ObjectMapper objectMapper,
       final FileSaveConfiguration fileSaveConfiguration) {
-    this.restTemplate = restTemplate;
+    this.webClient = webClientBuilder.baseUrl("https://jsonplaceholder.typicode.com").build();
     this.objectMapper = objectMapper;
     this.fileSaveConfiguration = fileSaveConfiguration;
   }
 
   @Override
-  public Post[] getAllPosts(){
-    return restTemplate.getForObject(posts_url, Post[].class);
+  public Post[] getAllPosts() {
+    logger.debug("Wykonywanie zapytania HTTP do zewnętrznego API po posty");
+    return webClient.get()
+        .uri("/posts")
+        .retrieve()
+        .bodyToMono(Post[].class)
+        .doOnError(error -> logger.error("Wystąpił błąd podczas pobierania postów z API", error))
+        .block();
   }
 
   @Override
   public void writeDataToFiles(final Post[] posts) throws FileSaveException {
     Path directory = Path.of(fileSaveConfiguration.getOutputFolder());
-    try{
-      if(Files.notExists(directory)){
+    logger.debug("Rozpoczęcie zapisywania {} postów do katalogu: {}", posts.length, directory);
+    
+    try {
+      if(Files.notExists(directory)) {
+        logger.info("Tworzenie katalogu wyjściowego: {}", directory);
         Files.createDirectory(directory);
       }
+      
       for (Post post : posts) {
-        objectMapper.writeValue(directory.resolve(post.getPostId() + fileSaveConfiguration.getExtension()).toFile(), post);
+        Path filePath = directory.resolve(post.getPostId() + fileSaveConfiguration.getExtension());
+        logger.debug("Zapisywanie postu o ID {} do pliku: {}", post.getPostId(), filePath);
+        objectMapper.writeValue(filePath.toFile(), post);
       }
-    }catch (IOException e){
+    } catch (IOException e) {
+      logger.error("Błąd podczas zapisywania plików", e);
       throw new FileSaveException(e);
-      }
     }
-
   }
-
+}

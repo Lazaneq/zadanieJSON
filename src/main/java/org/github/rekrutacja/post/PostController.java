@@ -1,9 +1,8 @@
 package org.github.rekrutacja.post;
 
 import org.github.rekrutacja.post.Exceptions.FileSaveException;
-import org.github.rekrutacja.post.impl.PostFacadeImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Description;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,21 +11,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/posts")
 public class PostController {
+  private static final Logger logger = LoggerFactory.getLogger(PostController.class);
+  private final PostFacade postFacade;
 
-  @Autowired
-  private PostFacadeImpl postFacadeImpl;
+  public PostController(final PostFacade postFacade) {
+    this.postFacade = postFacade;
+  }
 
-  @Description("Endpoint zwracający listę wszystkich postów")
+  /**
+   * Endpoint zwracający listę wszystkich postów
+   */
   @GetMapping
   public ResponseEntity<Post[]> getPosts() {
-    Post[] posts = postFacadeImpl.getAllPosts();
-
+    logger.info("Otrzymano żądanie pobrania wszystkich postów");
+    Post[] posts = postFacade.getAllPosts();
+    logger.info("Zwracam {} postów", posts.length);
     return ResponseEntity.ok(posts);
   }
 
-  @Description("Endpoint /posts/write zapisujący posty do dedykowanych plików po id_posta")
+  /**
+   * Endpoint /posts/write zapisujący posty do dedykowanych plików po id_posta
+   */
   @GetMapping("/write")
-  public void getPostsAndWriteToFiles() throws FileSaveException {
-    postFacadeImpl.getAllPostsAndWriteToFiles();
+  public ResponseEntity<String> getPostsAndWriteToFiles() throws FileSaveException {
+    logger.info("Otrzymano żądanie zapisania postów do plików");
+    postFacade.getAllPostsAndWriteToFiles();
+    logger.info("Posty zostały pomyślnie zapisane do plików");
+    return ResponseEntity.ok("Posty zostały pomyślnie zapisane do plików");
   }
 }
